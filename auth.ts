@@ -58,6 +58,7 @@ export const providerMap = providers
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers,
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30일
@@ -65,21 +66,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/signin",
   },
+  cookies: {
+    // dev, prod 환경에 따라 session 명칭 분리
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        console.log("jwt 콜백 - 로그인 :", user);
+        // console.log("jwt 콜백 - 로그인 :", user);
         ((token.id = user.id),
           (token.email = user.email),
           (token.name = user.name),
           (token.accessToken = user.accessToken));
       }
-      console.log("token : ", token);
+      // console.log("token : ", token);
       return token;
     },
 
     async session({ session, token }) {
-      console.log("========== Session 콜백 ==========");
+      // console.log("========== Session 콜백 ==========");
       if (token) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
@@ -87,7 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.accessToken = token.accessToken as string;
       }
 
-      console.log(session);
+      // console.log(session);
       return session;
     },
   },

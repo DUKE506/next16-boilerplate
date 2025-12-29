@@ -3,6 +3,7 @@ import { signOut } from "next-auth/react";
 
 export function LogoutButton() {
   const handleLogout = async () => {
+    ``;
     try {
       await signOut({
         callbackUrl: "/signin",
@@ -13,7 +14,7 @@ export function LogoutButton() {
     }
   };
   return (
-    <button onClick={handleLogout} className="bg-red-300 text-white">
+    <button onClick={handleLogout} className="">
       로그아웃
     </button>
   );
